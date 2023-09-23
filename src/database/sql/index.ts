@@ -14,6 +14,7 @@ export class SqlDataStore {
 		await this.db.migrate({
 			migrationsPath: path.join(__dirname, "migrations"),
 		});
+		await this.db.exec("PRAGMA foreign_keys = ON;");
 
 		return this;
 	}
@@ -120,7 +121,7 @@ export class SqlDataStore {
 	async createProduct(product: Product): Promise<void> {
 		// TODO: Handle errors creating product
 		try {
-			const query = "INSERT INTO products (id, type, duration, bakerId) VALUES (?,?,?)";
+			const query = "INSERT INTO products (id, type, duration, bakerId) VALUES (?,?,?,?)";
 			await this.db.run(query, [
 				product.id,
 				product.type,
@@ -135,7 +136,7 @@ export class SqlDataStore {
 	async findAllProducts(): Promise<Product[]> {
 		try {
 			const query = "SELECT * FROM products";
-			const products = await this.db.get(query);
+			const products = await this.db.all(query);
 			return products;
 		} catch (error: any) {
 			throw new Error(error);

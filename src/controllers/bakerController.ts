@@ -52,7 +52,7 @@ export namespace bakerController {
 		try {
 			const id = req.params.id;
 			if (!id) {
-				return next(new Error("Please provide User id"));
+				return next(new Error("Please provide id"));
 			}
 			const baker = await db.findBakerById(id);
 			return res.status(200).json({ data: baker });
