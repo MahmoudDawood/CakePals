@@ -2,21 +2,23 @@ export interface Baker {
 	id: string;
 	firstName?: string;
 	lastName?: string;
-	userName: string;
 	email: string;
 	password: string;
 	rating: number;
 	collectionStart: number;
 	collectionEnd: number;
+	latitude: string;
+	longitude: string;
 }
 
 export interface Member {
 	id: string;
 	firstName?: string;
 	lastName?: string;
-	userName: string;
 	email: string;
 	password: string;
+	latitude: string;
+	longitude: string;
 }
 
 export interface Product {
