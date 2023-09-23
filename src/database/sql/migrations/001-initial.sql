@@ -34,7 +34,7 @@ CREATE TABLE orders (
   memberId VARCHAR NOT NULL,
   bakerId VARCHAR NOT NULL,
   productId VARCHAR NOT NULL,
-  state VARCHAR NOT NULL,
+  state VARCHAR NOT NULL DEFAULT 'pending',
   payment VARCHAR NOT NULL,
   collectionTime INTEGER NOT NULL,
   FOREIGN KEY (memberId) REFERENCES member (id)
