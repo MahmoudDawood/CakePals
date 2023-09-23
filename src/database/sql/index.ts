@@ -102,10 +102,14 @@ export class SqlDataStore {
 		}
 	}
 
-	async memberSignIn(email: string, password: string): Promise<string | undefined> {
+	async memberSignIn({
+		email,
+		password,
+	}: Pick<Member, "email" | "password">): Promise<string | undefined> {
 		try {
 			const query = "SELECT id FROM members WHERE email = ? AND password = ?";
-			const memberId: string | undefined = await this.db.get(query, [email, password]);
+			const memberId = await this.db.get(query, [email, password]);
+			console.log(memberId);
 			return memberId;
 		} catch (error: any) {
 			throw new Error(error);

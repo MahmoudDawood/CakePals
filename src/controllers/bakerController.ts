@@ -13,6 +13,7 @@ export namespace bakerController {
 			await db.createBaker(baker);
 			return res.status(200).json({
 				message: "Baker Signed Up Successfully",
+				data: { id: baker.id },
 			});
 		} catch (error: any) {
 			next(new Error(error));
@@ -24,14 +25,14 @@ export namespace bakerController {
 			// TODO: Create a JWT and return it in the response
 			// TODO: Hash password before querying it
 			const { email, password } = req.body;
-			const data = await db.bakerSignIn({ email, password });
-			if (data) {
+			const { id } = await db.bakerSignIn({ email, password });
+			if (id) {
 				return res.status(201).json({
 					message: "Baker Signed in Successfully",
-					data,
+					data: { id, role: "baker" },
 				});
 			} else {
-				throw new Error("Wrong login entry");
+				throw new Error("Wrong login data");
 			}
 		} catch (error: any) {
 			next(new Error(error));
