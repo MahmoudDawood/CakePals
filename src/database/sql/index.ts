@@ -18,7 +18,9 @@ export class SqlDataStore {
 		return this;
 	}
 
-	// TODO: Create queries types and import them
+	// Queries
+
+	// TODO: Refactor each entity queries to it's own file
 
 	// Baker queries
 	async createBaker(baker: Baker): Promise<void> {
@@ -43,9 +45,24 @@ export class SqlDataStore {
 		}
 	}
 
-	async findAllBakers(): Promise<Baker[]> {
+	async bakerSignIn({
+		email,
+		password,
+	}: Pick<Baker, "email" | "password">): Promise<string | undefined> {
 		try {
-			const query = "SELECT * FROM bakers";
+			const query = "SELECT id FROM bakers WHERE email = ? AND password = ?";
+			const bakerId: string | undefined = await this.db.get(query, [email, password]);
+			return bakerId;
+		} catch (error: any) {
+			throw new Error(error);
+		}
+	}
+
+	async findAllBakers(): Promise<Omit<Baker, "id">[]> {
+		try {
+			// TODO: Include owned products by this baker
+			const query =
+				"SELECT firstName, lastName, rating, collectionStart, collectionEnd, latitude, longitude FROM bakers";
 			const bakers = await this.db.all(query);
 			return bakers;
 		} catch (error: any) {
@@ -55,19 +72,10 @@ export class SqlDataStore {
 
 	async findBakerById(id: string): Promise<Baker | undefined> {
 		try {
-			const query = "SELECT * FROM baker WHERE id = ?";
+			const query =
+				"SELECT firstName, lastName, rating, collectionStart, collectionEnd, latitude, longitude FROM bakers WHERE id = ?";
 			const baker: Baker | undefined = await this.db.get(query, id);
 			return baker;
-		} catch (error: any) {
-			throw new Error(error);
-		}
-	}
-
-	async bakerSignIn(email: string, password: string): Promise<string | undefined> {
-		try {
-			const query = "SELECT id FROM bakers WHERE email = ? AND password = ?";
-			const bakerId: string | undefined = await this.db.get(query, [email, password]);
-			return bakerId;
 		} catch (error: any) {
 			throw new Error(error);
 		}

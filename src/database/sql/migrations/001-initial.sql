@@ -2,11 +2,11 @@ CREATE TABLE bakers (
   id VARCHAR PRIMARY KEY,
   firstName VARCHAR NOT NULL,
   lastName VARCHAR NOT NULL,
-  email VARCHAR NOT NULL,
+  email VARCHAR UNIQUE NOT NULL,
   password VARCHAR NOT NULL,
   rating REAL DEFAULT(0),
-  collectionStart INTEGER NOT NULL,
-  collectionEnd INTEGER NOT NULL,
+  collectionStart VARCHAR NOT NULL,
+  collectionEnd VARCHAR NOT NULL,
   latitude REAL NOT NULL,
   longitude REAL NOT NULL
 );
@@ -15,7 +15,7 @@ CREATE TABLE members (
   id VARCHAR PRIMARY KEY,
   firstName VARCHAR NOT NULL,
   lastName VARCHAR NOT NULL,
-  email VARCHAR NOT NULL,
+  email VARCHAR UNIQUE NOT NULL,
   password VARCHAR NOT NULL,
   latitude REAL NOT NULL,
   longitude REAL NOT NULL
