@@ -1,12 +1,14 @@
 import bcrypt, { hash } from "bcrypt";
 import { randomUUID } from "crypto";
+import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../database";
 import { Baker } from "../types";
+dotenv.config();
 
 const pepper = process.env.BCRYPT_PEPPER;
-const salt = process.env.BCRYPT_SALT || 10;
+const salt = Number(process.env.BCRYPT_SALT) ?? 10;
 const tokenSecret = process.env.TOKEN_SECRET || "1";
 const COOKIE_MAX_AGE = 2 * 24 * 60 * 60 * 1000;
 const expiresIn = "2 days";
@@ -49,11 +51,7 @@ export namespace bakerController {
 					throw new Error("Either username or password are wrong");
 				}
 				const payload = { id: result.id, role: "baker" };
-				const token = jwt.sign(payload, tokenSecret, { expiresIn });
-				res.cookie("jwt", token, {
-					httpOnly: true,
-					maxAge: COOKIE_MAX_AGE as number,
-				});
+				const token = jwt.sign(payload, tokenSecret);
 				return res.status(201).json({
 					message: "Baker Signed in Successfully",
 					data: { token },

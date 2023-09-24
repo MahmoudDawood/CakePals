@@ -195,6 +195,9 @@ export namespace orderController {
 			if (!id) {
 				return next(new Error("Please provide id"));
 			}
+			if (id !== res.locals.id) {
+				throw new Error("Unauthorized action");
+			}
 			const orders = await db.getBakerOrders(id);
 			return res.status(200).json({ data: orders });
 		} catch (error: any) {

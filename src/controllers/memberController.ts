@@ -6,7 +6,7 @@ import { db } from "../database";
 import { Member } from "../types";
 
 const pepper = process.env.BCRYPT_PEPPER;
-const salt = process.env.BCRYPT_SALT || 10;
+const salt = Number(process.env.BCRYPT_SALT) ?? 10;
 const tokenSecret = process.env.TOKEN_SECRET || "1";
 const COOKIE_MAX_AGE = 2 * 24 * 60 * 60 * 1000;
 const expiresIn = "2 days";

@@ -157,10 +157,16 @@ export class SqlDataStore {
 		}
 	}
 
-	async updatedProductById(product: Omit<Product, "bakerId">): Promise<void> {
+	async updateProductById(product: Product): Promise<void> {
 		try {
-			const query = "UPDATE products SET type = ?, duration = ? WHERE id = ?";
-			await this.db.run(query, [product.type, product.duration, product.id]);
+			const query =
+				"UPDATE products SET type = ?, duration = ? WHERE id = ? AND bakerId = ?";
+			await this.db.run(query, [
+				product.type,
+				product.duration,
+				product.id,
+				product.bakerId,
+			]);
 		} catch (error: any) {
 			throw new Error(error);
 		}

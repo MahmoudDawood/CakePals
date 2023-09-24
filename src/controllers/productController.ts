@@ -13,6 +13,9 @@ export namespace productController {
 		try {
 			// Duration in minutes
 			const { type, duration, bakerId } = req.body;
+			if (bakerId !== res.locals.id) {
+				return new Error("Use your correct baker id");
+			}
 			const id = randomUUID();
 			await db.createProduct({ id, type, duration, bakerId });
 			return res.status(201).json({
@@ -97,7 +100,8 @@ export namespace productController {
 			if (!id) {
 				return next(new Error("Please provide id"));
 			}
-			await db.updatedProductById({ id, type, duration });
+			const bakerId = res.locals.id;
+			await db.updateProductById({ id, type, duration, bakerId });
 			return res.status(201).json({
 				message: "Product updated successfully",
 			});
