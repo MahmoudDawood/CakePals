@@ -111,6 +111,16 @@ export class SqlDataStore {
 		}
 	}
 
+	async findMemberLocationById(id: string): Promise<Member | undefined> {
+		try {
+			const query = "SELECT latitude, longitude FROM bakers WHERE id = ?";
+			const member: Baker | undefined = await this.db.get(query, id);
+			return member;
+		} catch (error: any) {
+			throw new Error(error);
+		}
+	}
+
 	// Product queries
 	async createProduct(product: Product): Promise<void> {
 		// TODO: Handle errors creating product

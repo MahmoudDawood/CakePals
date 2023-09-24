@@ -29,10 +29,8 @@ export namespace orderController {
 		const { duration } = await db.findProductById(order.productId); // In minutes
 		// Get baker collection period
 		const { collectionStart, collectionEnd } = await db.findBakerById(order.bakerId);
-		console.log({ collectionStart, collectionEnd });
 		// Get all baker orders where state is accepted
 		const orders = await db.getBakerAcceptedOrders(order.bakerId);
-		console.log({ orders });
 		// Get duration of each order
 
 		const [orderStart, orderEnd] = [
@@ -45,7 +43,6 @@ export namespace orderController {
 				const { duration } = await db.findProductById(order.productId);
 				return duration;
 			});
-			console.log({ durations });
 
 			const collisions = orders
 				.map((order: any, i: number) => {
@@ -63,7 +60,6 @@ export namespace orderController {
 						return true;
 					}
 				});
-			console.log({ orders, durations, collisions });
 			if (collisions.length) {
 				return false;
 			}

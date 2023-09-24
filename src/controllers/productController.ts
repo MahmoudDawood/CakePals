@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { NextFunction, Request, Response } from "express";
 import { db } from "../database";
 import { Product } from "../types";
+import { calculateDistance } from "../utils/calculateDistance";
 
 export namespace productController {
 	export const createProduct = async (
@@ -39,6 +40,47 @@ export namespace productController {
 			}
 			const product = await db.findProductById(id);
 			return res.status(200).json({ data: product });
+		} catch (error: any) {
+			next(new Error(error));
+		}
+	};
+
+	export const findByLocationType = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) => {
+		try {
+			const searchType = req.query.type as string;
+			let { latitude, longitude, distance } = req.body;
+			if (!latitude || !longitude) {
+				throw new Error(
+					"Please provide coordinates (latitude, longitude) in request body"
+				);
+			}
+			// Get all products
+			const products = await db.findAllProducts();
+			// Filter them to match type input
+			const productsByType = products.filter((product: any) => {
+				if (searchType) {
+					return product.type.toLowerCase().includes(searchType.toLowerCase());
+				}
+				return true;
+			});
+			// Find each product baker location
+			const filteredProducts: any[] = [];
+			for (const product of productsByType) {
+				const bakerId = product.bakerId;
+				const baker = await db.findBakerById(bakerId);
+				// Calculate distance to filter (in meter)
+				const actualDistance =
+					calculateDistance(latitude, longitude, baker.latitude, baker.longitude) / 1000;
+				if (actualDistance < distance) {
+					filteredProducts.push(product);
+				}
+			}
+
+			return res.status(200).json({ data: filteredProducts });
 		} catch (error: any) {
 			next(new Error(error));
 		}
