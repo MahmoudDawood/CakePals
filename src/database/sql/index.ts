@@ -8,7 +8,7 @@ export class SqlDataStore {
 	public async openDb() {
 		this.db = await sqliteOpen({
 			filename: path.join(__dirname, "cakepals.sqlite"),
-			driver: sqlite3.Database,
+			driver: sqlite3.cached.Database,
 		});
 
 		await this.db.migrate({
