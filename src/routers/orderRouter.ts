@@ -6,6 +6,7 @@ import { isBaker, isMember } from "../middlewares/authorize";
 export const orderRouter = Router();
 
 orderRouter.use(authenticate);
+orderRouter.post("/", isMember, orderController.createOrder); // Create order ( Member)
 orderRouter.get("/", orderController.findAll); // Get all orders (Baker, Member)
 orderRouter.get("/:id", orderController.findById); // Find order by Id (Baker, Member)
 orderRouter.get("/baker/:id", isBaker, orderController.findBakerOrders); // Find baker orders (Baker)

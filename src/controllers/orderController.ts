@@ -7,6 +7,7 @@ export namespace orderController {
 	export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// TODO: Add date (day, month) to the collection time
+			// TODO: Get bakerId from orderId internally
 			// Collection time is a string "hour:minute"
 			const order = req.body;
 			const availableTime = await checkAvailability(order);
@@ -124,7 +125,6 @@ export namespace orderController {
 	export const findAll = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// TODO: Split baker and member order routes
-			// TODO: Authorize orders by user id
 			// const id = req.params.id;
 			const orders = await db.findAllOrders();
 			return res.status(200).json({ data: orders });
@@ -176,7 +176,7 @@ export namespace orderController {
 			}
 			const ratingValues = ratings.map((entry: any) => entry["rating"]);
 			const ratingSum = ratingValues.reduce((acc: number, curr: number) => acc + curr);
-			const newRating = Math.floor(ratingSum / ratingValues.length);
+			const newRating = (ratingSum / ratingValues.length).toFixed(1);
 			await db.rateBaker(bakerId, newRating);
 		} catch (error: any) {
 			throw new Error(error);
