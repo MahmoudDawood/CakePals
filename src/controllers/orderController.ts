@@ -31,7 +31,7 @@ export namespace orderController {
 		const { collectionStart, collectionEnd } = await db.findBakerById(order.bakerId);
 		console.log({ collectionStart, collectionEnd });
 		// Get all baker orders where state is accepted
-		const orders = await db.getBakerOrders(order.bakerId);
+		const orders = await db.getBakerAcceptedOrders(order.bakerId);
 		console.log({ orders });
 		// Get duration of each order
 
@@ -184,6 +184,25 @@ export namespace orderController {
 			await db.rateBaker(bakerId, newRating);
 		} catch (error: any) {
 			throw new Error(error);
+		}
+	};
+
+	export const findBakerOrders = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) => {
+		try {
+			// TODO: Split baker and member order routes
+			// TODO: Authorize by user id
+			const id = req.params.id;
+			if (!id) {
+				return next(new Error("Please provide id"));
+			}
+			const orders = await db.getBakerOrders(id);
+			return res.status(200).json({ data: orders });
+		} catch (error: any) {
+			next(new Error(error));
 		}
 	};
 

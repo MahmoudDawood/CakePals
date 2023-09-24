@@ -256,9 +256,19 @@ export class SqlDataStore {
 		}
 	}
 
-	async getBakerOrders(bakerId: string): Promise<Order[]> {
+	async getBakerAcceptedOrders(bakerId: string): Promise<Order[]> {
 		try {
 			const query = "SELECT * FROM orders WHERE bakerId = ? AND state = 'accepted'";
+			const orders = await this.db.all(query, bakerId);
+			return orders;
+		} catch (error: any) {
+			throw new Error(error);
+		}
+	}
+
+	async getBakerOrders(bakerId: string): Promise<Order[]> {
+		try {
+			const query = "SELECT * FROM orders WHERE bakerId = ?";
 			const orders = await this.db.all(query, bakerId);
 			return orders;
 		} catch (error: any) {
