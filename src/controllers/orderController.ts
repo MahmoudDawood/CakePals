@@ -6,17 +6,124 @@ import { Order, OrderState } from "../types";
 export namespace orderController {
 	export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
 		try {
+			// TODO: Add date (day, month) to the collection time
 			// Collection time is a string "hour:minute"
 			const order = req.body;
-			const id = randomUUID();
-			await db.createOrder({ id, ...order });
-			return res.status(201).json({
-				message: "Order created Successfully",
-			});
+			const availableTime = await checkAvailability(order);
+			// Create order
+			if (availableTime) {
+				const id = randomUUID();
+				await db.createOrder({ id, ...order });
+				return res.status(201).json({
+					message: "Order created Successfully",
+				});
+			} else {
+				throw new Error("Baker is not free at that time");
+			}
 		} catch (error: any) {
 			next(new Error(error));
 		}
 	};
+	const checkAvailability = async (order: any) => {
+		// Get product duration
+		const { duration } = await db.findProductById(order.productId); // In minutes
+		// Get baker collection period
+		const { collectionStart, collectionEnd } = await db.findBakerById(order.bakerId);
+		console.log({ collectionStart, collectionEnd });
+		// Get all baker orders where state is accepted
+		const orders = await db.getBakerOrders(order.bakerId);
+		console.log({ orders });
+		// Get duration of each order
+
+		const [orderStart, orderEnd] = [
+			orderPreparationStart(order.collectionTime, duration),
+			order.collectionTime,
+		];
+
+		if (orders && orders.length) {
+			const durations = await orders.map(async (order: any) => {
+				const { duration } = await db.findProductById(order.productId);
+				return duration;
+			});
+			console.log({ durations });
+
+			const collisions = orders
+				.map((order: any, i: number) => {
+					const endTime = order.collectionTime;
+					return [orderPreparationStart(endTime, durations[i]), endTime];
+				})
+				.filter((collision: any) => {
+					// Eliminate collected orders before order start time
+					if (compareTimeStamps(collision[1], orderStart) > -1) {
+						return false;
+						// Eliminate next orders after order collection time
+					} else if (compareTimeStamps(orderEnd, collision[0])) {
+						return false;
+					} else {
+						return true;
+					}
+				});
+			console.log({ orders, durations, collisions });
+			if (collisions.length) {
+				return false;
+			}
+		}
+
+		// Validate order is within time range
+		const inTimeRange =
+			compareTimeStamps(collectionStart, orderStart) > -1 &&
+			compareTimeStamps(orderEnd, collectionEnd) > -1;
+		console.log({ inTimeRange });
+
+		if (inTimeRange) {
+			return true;
+		} else {
+			throw Error("Collection time is out of baker's time range");
+		}
+	};
+	const orderPreparationStart = (timestamp: string, duration: number) => {
+		// Split the input timestamp into hours and minutes
+		const [hours, minutes] = timestamp.split(":").map(Number);
+
+		// Convert the hours and minutes to total minutes
+		const totalMinutes = hours * 60 + minutes;
+
+		// Calculate the new total minutes by subtracting the duration
+		const newTotalMinutes = totalMinutes - duration;
+
+		// Ensure that the result is non-negative
+		if (newTotalMinutes < 0) {
+			throw new Error("Duration exceeds the provided timestamp.");
+		}
+
+		// Calculate the new hours and minutes
+		const newHours = Math.floor(newTotalMinutes / 60);
+		const newMinutes = newTotalMinutes % 60;
+
+		// Format the new timestamp as "HH:MM"
+		const newTimestamp = `${String(newHours).padStart(2, "0")}:${String(
+			newMinutes
+		).padStart(2, "0")}`;
+
+		return newTimestamp;
+	};
+	function compareTimeStamps(timeStamp1: string, timeStamp2: string) {
+		// Create a common date (e.g., today's date) for comparison
+		const currentDate = new Date();
+
+		// Parse time stamps into Date objects with the common date
+		const date1 = new Date(currentDate.toDateString() + " " + timeStamp1);
+		const date2 = new Date(currentDate.toDateString() + " " + timeStamp2);
+
+		// Compare the Date objects
+		if (date1 < date2) {
+			return 1; // timeStamp1 is earlier than timeStamp2
+		} else if (date1 > date2) {
+			return -1; // timeStamp1 is later than timeStamp2
+		} else {
+			return 0; // timeStamp1 and timeStamp2 are the same
+		}
+	}
 
 	export const findAll = async (req: Request, res: Response, next: NextFunction) => {
 		try {

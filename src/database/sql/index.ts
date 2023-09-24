@@ -167,6 +167,7 @@ export class SqlDataStore {
 	}
 
 	// Order queries
+
 	async createOrder(order: Order): Promise<void> {
 		try {
 			const query =
@@ -250,6 +251,16 @@ export class SqlDataStore {
 		try {
 			const query = "UPDATE orders SET state = ? WHERE id = ?";
 			await this.db.run(query, [state, id]);
+		} catch (error: any) {
+			throw new Error(error);
+		}
+	}
+
+	async getBakerOrders(bakerId: string): Promise<Order[]> {
+		try {
+			const query = "SELECT * FROM orders WHERE bakerId = ? AND state = 'accepted'";
+			const orders = await this.db.all(query, bakerId);
+			return orders;
 		} catch (error: any) {
 			throw new Error(error);
 		}
