@@ -46,14 +46,12 @@ export class SqlDataStore {
 		}
 	}
 
-	async bakerSignIn({
-		email,
-		password,
-	}: Pick<Baker, "email" | "password">): Promise<string | undefined> {
+	async bakerSignIn({ email }: Pick<Baker, "email">): Promise<string | undefined> {
 		try {
-			const query = "SELECT id FROM bakers WHERE email = ? AND password = ?";
-			const bakerId: string | undefined = await this.db.get(query, [email, password]);
-			return bakerId;
+			const query = "SELECT id, password FROM bakers WHERE email = ?";
+			const password: string | undefined = await this.db.get(query, email);
+			console.log(password);
+			return password;
 		} catch (error: any) {
 			throw new Error(error);
 		}
@@ -103,15 +101,11 @@ export class SqlDataStore {
 		}
 	}
 
-	async memberSignIn({
-		email,
-		password,
-	}: Pick<Member, "email" | "password">): Promise<string | undefined> {
+	async memberSignIn({ email }: Pick<Member, "email">): Promise<string | undefined> {
 		try {
-			const query = "SELECT id FROM members WHERE email = ? AND password = ?";
-			const memberId = await this.db.get(query, [email, password]);
-			console.log(memberId);
-			return memberId;
+			const query = "SELECT id, password FROM members WHERE email = ?";
+			const result = await this.db.get(query, email);
+			return result;
 		} catch (error: any) {
 			throw new Error(error);
 		}
