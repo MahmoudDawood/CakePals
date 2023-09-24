@@ -176,7 +176,7 @@ export class SqlDataStore {
 	async createOrder(order: Order): Promise<void> {
 		try {
 			const query =
-				"INSERT INTO orders (id,memberId,bakerId,productId,payment,collectionTime) VALUES (?,?,?,?,?,?)";
+				"INSERT INTO orders (id, memberId, bakerId, productId, payment, collectionTime) VALUES (?,?,?,?,?,?);";
 			await this.db.run(query, [
 				order.id,
 				order.memberId,
@@ -190,49 +190,72 @@ export class SqlDataStore {
 		}
 	}
 
-	async findAllBakerOrders(bakerId: string): Promise<Order[]> {
+	async findAllOrders(): Promise<Order[]> {
 		try {
-			const query = "SELECT * FROM orders WHERE bakerId = ?";
-			const orders = await this.db.all(query, bakerId);
+			const query = "SELECT * FROM orders"; // WHERE bakerId = ? OR memberId = ?";
+			const orders = await this.db.all(query);
 			return orders;
 		} catch (error: any) {
 			throw new Error(error);
 		}
 	}
 
-	async findAllMemberOrders(memberId: string): Promise<Order[]> {
+	async findOrderById(id: string): Promise<Order | undefined> {
 		try {
-			const query = "SELECT * FROM orders WHERE memberId = ?";
-			const orders = await this.db.all(query, memberId);
-			return orders;
-		} catch (error: any) {
-			throw new Error(error);
-		}
-	}
-
-	async findBakerOrderById(id: string, bakerId: string): Promise<Order | undefined> {
-		try {
-			const query = "SELECT * FROM orders WHERE id = ?, bakerId = ?";
-			const order = await this.db.get(query, [id, bakerId]);
+			const query = "SELECT * FROM orders WHERE id = ?";
+			const order = await this.db.get(query, id);
 			return order;
 		} catch (error: any) {
 			throw new Error(error);
 		}
 	}
 
-	async findMemberOrderById(id: string, memberId: string): Promise<Order | undefined> {
+	async rateOrder(id: string, rating: string): Promise<void> {
 		try {
-			const query = "SELECT * FROM orders WHERE id = ?, memberId = ?";
-			const order = await this.db.get(query, [id, memberId]);
-			return order;
+			const query = "UPDATE orders SET rating = ? WHERE id = ? AND state = 'fulfilled'";
+			await this.db.run(query, [rating, id]);
 		} catch (error: any) {
 			throw new Error(error);
 		}
 	}
 
-	async updateOrderState(id: string, bakerId: string, state: string): Promise<void> {
+	async getOrderBaker(orderId: string): Promise<string> {
 		try {
-			const query = "UPDATE orders SET state = ? WHERE id = ?, bakerId = ?";
+			const query = "SELECT bakerId FROM orders WHERE id = ?";
+			const bakerId = await this.db.get(query, orderId);
+			return bakerId;
+		} catch (error: any) {
+			throw new Error(error);
+		}
+	}
+
+	async getBakerRatings(bakerId: string): Promise<number[]> {
+		try {
+			// Get all bakers' ratings for fulfilled orders
+			const query = "SELECT rating FROM orders WHERE bakerId = ? AND state = 'fulfilled'";
+			const ratings = await this.db.all(query, bakerId);
+			return ratings;
+		} catch (error: any) {
+			throw new Error(error);
+		}
+	}
+
+	async rateBaker(bakerId: string, newRating: number): Promise<void> {
+		try {
+			const query = "UPDATE bakers SET rating = ? WHERE id = ?";
+			await this.db.run(query, [newRating, bakerId]);
+		} catch (error: any) {
+			throw new Error(error);
+		}
+	}
+
+	async updateOrderState({
+		id,
+		bakerId,
+		state,
+	}: Pick<Order, "id" | "bakerId" | "state">): Promise<void> {
+		try {
+			const query = "UPDATE orders SET state = ? WHERE id = ? AND bakerId = ?";
 			await this.db.run(query, [state, id, bakerId]);
 		} catch (error: any) {
 			throw new Error(error);

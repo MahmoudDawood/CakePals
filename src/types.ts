@@ -38,7 +38,7 @@ export interface Order {
 	collectionTime: number;
 }
 
-enum OrderState {
+export enum OrderState {
 	pending = "PENDING",
 	accepted = "ACCEPTED",
 	rejected = "REJECTED",

@@ -36,8 +36,9 @@ CREATE TABLE orders (
   productId VARCHAR NOT NULL,
   state VARCHAR NOT NULL DEFAULT 'pending',
   payment VARCHAR NOT NULL,
-  collectionTime INTEGER NOT NULL,
-  FOREIGN KEY (memberId) REFERENCES member (id)
-  FOREIGN KEY (bakerId) REFERENCES baker (id)
-  FOREIGN KEY (productId) REFERENCES product (id)
+  collectionTime VARCHAR NOT NULL,
+  rating INTEGER,
+  FOREIGN KEY (memberId) REFERENCES members (id)
+  FOREIGN KEY (bakerId) REFERENCES bakers (id)
+  FOREIGN KEY (productId) REFERENCES products (id)
 );
