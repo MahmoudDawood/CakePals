@@ -50,7 +50,6 @@ export class SqlDataStore {
 		try {
 			const query = "SELECT id, password FROM bakers WHERE email = ?";
 			const password: string | undefined = await this.db.get(query, email);
-			console.log(password);
 			return password;
 		} catch (error: any) {
 			throw new Error(error);
@@ -123,7 +122,6 @@ export class SqlDataStore {
 
 	// Product queries
 	async createProduct(product: Product): Promise<void> {
-		// TODO: Handle errors creating product
 		try {
 			const query = "INSERT INTO products (id, type, duration, bakerId) VALUES (?,?,?,?)";
 			await this.db.run(query, [
@@ -226,7 +224,6 @@ export class SqlDataStore {
 			console.log({ id, rating });
 			const query = "UPDATE orders SET rating = ? WHERE id = ? AND state = 'fulfilled'";
 			await this.db.run(query, [rating, id]);
-			console.log("Query ran successfully");
 		} catch (error: any) {
 			throw new Error(error);
 		}

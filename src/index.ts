@@ -18,11 +18,10 @@ require("dotenv").config();
 	app.use(morgan("dev"));
 	app.use(helmet());
 
-	// TODO: Provide descriptive error messages
-	app.use("/bakers", bakerRouter);
-	app.use("/members", memberRouter);
-	app.use("/products", productRouter);
-	app.use("/orders", orderRouter);
+	app.use("/api/bakers", bakerRouter);
+	app.use("/api/members", memberRouter);
+	app.use("/api/products", productRouter);
+	app.use("/api/orders", orderRouter);
 
 	app.get("/", (req, res) => {
 		res.send("Hello world");

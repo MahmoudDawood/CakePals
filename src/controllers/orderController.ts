@@ -136,7 +136,6 @@ export namespace orderController {
 	export const findById = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// TODO: Split baker and member order routes
-			// TODO: Authorize by user id
 			const id = req.params.id;
 			if (!id) {
 				return next(new Error("Please provide id"));
@@ -150,7 +149,6 @@ export namespace orderController {
 
 	export const rateOrder = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			// TODO: Split baker and member order routes
 			// TODO: Authorize by user id
 			// TODO: Validate order is fulfilled sending response
 			const id = req.params.id;
@@ -189,7 +187,6 @@ export namespace orderController {
 		next: NextFunction
 	) => {
 		try {
-			// TODO: Split baker and member order routes
 			// TODO: Authorize by user id
 			const id = req.params.id;
 			if (!id) {
@@ -211,7 +208,6 @@ export namespace orderController {
 		next: NextFunction
 	) => {
 		try {
-			// TODO: Allow members to update order state
 			// TODO: Validate id exists before updating
 			// TODO: Create FSM (Finite state machine) for order states
 			// (pending => (accepted => fulfilled#, rejected#))

@@ -3,9 +3,7 @@ import { NextFunction, Request, Response } from "express";
 export const isBaker = (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const role = res.locals.role;
-		console.log({ role });
 		if (role == "baker") {
-			console.log("fin");
 			next();
 		} else {
 			return res.status(403).json("Unauthorized Access");

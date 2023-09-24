@@ -13,7 +13,6 @@ export default function (req: Request, res: Response, next: NextFunction) {
 		const payload = jwt.verify(token, process.env.TOKEN_SECRET as string) as JwtPayload;
 		res.locals.id = payload.id;
 		res.locals.role = payload.role;
-		console.log(res.locals);
 		next();
 	} catch (error: any) {
 		return res.status(401).json("Access denied, Invalid token: " + error);
