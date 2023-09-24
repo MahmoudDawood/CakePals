@@ -210,10 +210,12 @@ export class SqlDataStore {
 		}
 	}
 
-	async rateOrder(id: string, rating: string): Promise<void> {
+	async rateOrder({ id, rating }: Pick<Order, "id" | "rating">): Promise<void> {
 		try {
+			console.log({ id, rating });
 			const query = "UPDATE orders SET rating = ? WHERE id = ? AND state = 'fulfilled'";
 			await this.db.run(query, [rating, id]);
+			console.log("Query ran successfully");
 		} catch (error: any) {
 			throw new Error(error);
 		}
@@ -232,7 +234,8 @@ export class SqlDataStore {
 	async getBakerRatings(bakerId: string): Promise<number[]> {
 		try {
 			// Get all bakers' ratings for fulfilled orders
-			const query = "SELECT rating FROM orders WHERE bakerId = ? AND state = 'fulfilled'";
+			const query =
+				"SELECT rating FROM orders WHERE bakerId = ? AND state = 'fulfilled' AND rating IS NOT NULL";
 			const ratings = await this.db.all(query, bakerId);
 			return ratings;
 		} catch (error: any) {
@@ -249,14 +252,10 @@ export class SqlDataStore {
 		}
 	}
 
-	async updateOrderState({
-		id,
-		bakerId,
-		state,
-	}: Pick<Order, "id" | "bakerId" | "state">): Promise<void> {
+	async updateOrderState({ id, state }: Pick<Order, "id" | "state">): Promise<void> {
 		try {
-			const query = "UPDATE orders SET state = ? WHERE id = ? AND bakerId = ?";
-			await this.db.run(query, [state, id, bakerId]);
+			const query = "UPDATE orders SET state = ? WHERE id = ?";
+			await this.db.run(query, [state, id]);
 		} catch (error: any) {
 			throw new Error(error);
 		}

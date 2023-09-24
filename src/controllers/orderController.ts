@@ -49,29 +49,31 @@ export namespace orderController {
 		try {
 			// TODO: Split baker and member order routes
 			// TODO: Authorize by user id
-			const orderId = req.params.id;
+			// TODO: Validate order is fulfilled sending response
+			const id = req.params.id;
 			const rating = req.body.rating;
-			if (!orderId) {
+			if (!id) {
 				return next(new Error("Please provide id"));
 			}
-			await db.rateOrder(orderId, rating);
-			await rateBaker(orderId);
+			await db.rateOrder({ id, rating });
+			console.log("Updating bakers' rating");
+			await rateBaker(id);
 
-			return res.status(201).json({ message: "Order rated successfully" });
+			return res.status(201).json({ message: "Order and baker rated successfully" });
 		} catch (error: any) {
 			next(new Error(error));
 		}
 	};
 	const rateBaker = async (orderId: string) => {
 		try {
-			const bakerId = await db.getOrderBaker(orderId);
+			const { bakerId } = await db.getOrderBaker(orderId);
 			const ratings = await db.getBakerRatings(bakerId);
-			const validRatings = ratings.filter((rating: number) => rating);
-			if (!validRatings.length) {
-				throw new Error("No successful orders yet");
+			if (!ratings.length) {
+				return new Error("No fulfilled orders yet");
 			}
-			const ratingSum = validRatings.reduce((acc: number, curr: number) => acc + curr);
-			const newRating = Math.floor(ratingSum / validRatings.length);
+			const ratingValues = ratings.map((entry: any) => entry["rating"]);
+			const ratingSum = ratingValues.reduce((acc: number, curr: number) => acc + curr);
+			const newRating = Math.floor(ratingSum / ratingValues.length);
 			await db.rateBaker(bakerId, newRating);
 		} catch (error: any) {
 			throw new Error(error);
@@ -86,15 +88,17 @@ export namespace orderController {
 		try {
 			// TODO: Allow members to update order state
 			// TODO: Validate id exists before updating
-			const { state, bakerId } = req.body;
+			// TODO: Create FSM (Finite state machine) for order states
+			// (pending => (accepted => fulfilled#, rejected#))
+			const state = req.body.state;
 			if (state !== "rejected" && state !== "accepted" && state !== "fulfilled") {
 				return next(new Error("Please provide a valid state"));
 			}
-			const orderId = req.params.id;
-			if (!orderId) {
+			const id = req.params.id;
+			if (!id) {
 				return next(new Error("Please provide id"));
 			}
-			await db.updateOrderState({ orderId, bakerId, state });
+			await db.updateOrderState({ id, state });
 			return res.status(201).json({
 				message: "Order state updated successfully",
 			});

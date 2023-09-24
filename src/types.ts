@@ -36,6 +36,7 @@ export interface Order {
 	state: OrderState;
 	payment: string;
 	collectionTime: number;
+	rating: number;
 }
 
 export enum OrderState {
