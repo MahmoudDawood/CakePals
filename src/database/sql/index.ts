@@ -12,7 +12,7 @@ export class SqlDataStore {
 		});
 
 		await this.db.migrate({
-			migrationsPath: path.join(__dirname, "migrations"),
+			migrationsPath: path.join(__dirname, "../../../assets/migrations"),
 		});
 		await this.db.exec("PRAGMA foreign_keys = ON;");
 
