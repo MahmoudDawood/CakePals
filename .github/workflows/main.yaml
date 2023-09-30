@@ -1,0 +1,40 @@
+name: CakePals CI/CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        # run: npm test (NOT CONFIGURED)
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to production
+        uses: MahmoudDawood/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{secrets.SERVICE_ID}}
+          api-key: ${{secrets.RENDER_API_KEY}}
