@@ -24,8 +24,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Test
-        # run: npm test (NOT CONFIGURED)
+      - name: Test (No action)
+        run: |
+          echo "This is a test step."
+          echo "It doesn't trigger any actions or deployments."
 
   deploy:
     name: Deploy
